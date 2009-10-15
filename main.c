@@ -1,4 +1,6 @@
-//comment
+/**
+ *  Main program
+ */
 #include <pob-eye.h>
 
 
