@@ -1,5 +1,5 @@
 /**
- *  Main program
+ *  Main program test
  */
 #include <pob-eye.h>
 
