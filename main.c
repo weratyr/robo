@@ -141,18 +141,6 @@ int GoToCup( Form *formArray, int nbForm)
 	{
 		if( formArray[i].id == IDP_BECHER )
 		{
-//			//move head to center the form
-//			if( formArray[i].y>65)
-//			{
-//				HeadPosition = HeadPosition - 4;
-//			}
-//			else if( formArray[i].y<55)
-//			{
-//				HeadPosition = HeadPosition + 4;
-//			}
-			
-		//	SetServoMotor(HEAD_SERVO,HeadPosition);
-			
 			
             PrintTextOnPobTerminal("form at w=%d h=%d", formArray[i].x ,formArray[i].y );
 			//move bot to center the form
@@ -171,22 +159,11 @@ int GoToCup( Form *formArray, int nbForm)
 				//fragt den Frontsensor ab
 				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
 				
-				if( formArray[i].width > 20 && formArray[i].height > 40 &&
-				   formArray[i].width < 25 && formArray[i].height < 45)
-				{
-					//go slow 
-					MoveBot(STOP_BOT);
-					MoveAndStop(MOVE_RUN,20000);
-				}
-				else if( formArray[i].width > 30 && formArray[i].height > 50 )
-				{
-					MoveAndStop(MOVE_RUN,90000);
-					if (sensorFront > 90) {
-						//stop move and open gri
-						GripClose();
-						Wait(200000);
-						return -1 ;
-                    }
+				if (sensorFront > 90) {
+					//stop move and open gri
+					GripClose();
+					Wait(200000);
+					return -1 ;
 				}
 				else
 				{
