@@ -1,0 +1,12 @@
+; begin
+; end
+[POB-TOOLS Project]
+bitmapNb = 0
+bitmap = grip_bitmap.h
+cfile0 = main.c
+cfileNb = 1
+pattern = grip_pattern.h
+patternNb = 1
+pattern0 = ..\..\..\..\PopTools_V3.1\PobTools\Examples\example4\pattern\becher1.bmp
+upload = becher.hex
+hex = becher.hex
