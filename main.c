@@ -107,7 +107,7 @@ int main(void)
 			//such den becher
 			
 			MoveAndStop(MOVE_LEFT,30000);
-			MoveAndStop(MOVE_RUN,90000);
+			MoveAndStop(MOVE_RUN,1000000);
 		}
 		else 
 		{ 
@@ -159,10 +159,12 @@ int GoToCup( Form *formArray, int nbForm)
 				//fragt den Frontsensor ab
 				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
 				
-				if (sensorFront > 90) {
+				if (sensorFront > 65) { //vielleicht zu verkleinern
 					//stop move and open gri
+					MoveAndStop(MOVE_RUN,1000000);
 					GripClose();
 					Wait(200000);
+					GripUp();
 					return -1 ;
 				}
 				else
