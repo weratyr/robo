@@ -57,7 +57,8 @@
  */
 #define GripDown()	 SetServoMotor(GRIP_SERVO_UP_DOWN,GRIP_MIDDLE_POSITION-45)
 #define GripMiddle() SetServoMotor(GRIP_SERVO_UP_DOWN,GRIP_MIDDLE_POSITION-20)
-#define GripUp()     SetServoMotor(GRIP_SERVO_UP_DOWN,GRIP_MIDDLE_POSITION-10)
+#define GripUp()     SetServoMotor(GRIP_SERVO_UP_DOWN,GRIP_MIDDLE_POSITION-20)
+#define GripDrive()  SetServoMotor(GRIP_SERVO_UP_DOWN,GRIP_MIDDLE_POSITION+100)
 
 /**
  * Head initial position, up and down
