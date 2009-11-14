@@ -163,7 +163,7 @@ int GoToCup( Form *formArray, int nbForm)
 				
 				//fragt den Frontsensor ab
 				//sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
-				if (sensorFront > 90) {
+				if (sensorFront > 65) { // 65 successful value
 					//stop move and open gri
 					GripClose();
 					Wait(200000);
