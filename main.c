@@ -297,24 +297,30 @@ void DrawVisionRight(RGBFrame *ptr)
 void HindernisAusweichen(int front, int formCup, int left, int right)
 {
      PrintTextOnPobTerminal("front %d ", front );
+
+	
+	
+	
     while (front > 90 && formCup != 1 && formCup !=2 )
     {
-        MoveAndStop(MOVE_BACK,900000);
+        MoveAndStop(MOVE_BACK,80000);
 		Wait(20000);
-        MoveAndStop(MOVE_LEFT,80000);
-		Wait(20000);
+        MoveAndStop(MOVE_LEFT,
         PrintTextOnPobTerminal("front Hinderniss %d ", front );
+		front = GetPortAnalog(DISTANCE_SENSOR_FRONT);
     }
 	
     while (left > 70 && left < 110)
     {
         MoveAndStop(MOVE_RIGHT,40000);
-                PrintTextOnPobTerminal("Left Hinderniss %d ", left );
+		PrintTextOnPobTerminal("Left Hinderniss %d ", left );
+		left = GetPortAnalog(DISTANCE_SENSOR_LEFT);
     }
 	
     while (right > 70 && right < 110)
     {
         MoveAndStop(MOVE_LEFT,40000);
-                PrintTextOnPobTerminal("Right Hinderniss %d ", right );
+		PrintTextOnPobTerminal("Right Hinderniss %d ", right );
+		right = GetPortAnalog(DISTANCE_SENSOR_RIGHT);
     }
 }
