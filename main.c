@@ -38,7 +38,7 @@ static UInt8         LCD_Buffer[64*64*BITS];
 //function for displat real time video
 static void DrawVision(RGBFrame *ptr);
 static void DrawVisionRight(RGBFrame *ptr);
-static void HindernisAusweichen(int front, int left, int right);
+static void HindernisAusweichen(int front, int formCup, int left, int right);
 
 
 int sensorFront ;
@@ -99,28 +99,28 @@ int main(void)
 		sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT);
 		sensorLeft = GetPortAnalog(DISTANCE_SENSOR_LEFT);
 		sensorRight = GetPortAnalog(DISTANCE_SENSOR_RIGHT);
-		
-		//Secutrity function, the pod-pot cannot drive to anything (except the cup ;-) ) closer than about 8cm
-		HindernisAusweichen(sensorFront, sensorLeft, sensorRight);
-		
+			
 		//draw camera frame
 		DrawVision(&rgbFrame);
 		
 		NbForm = IdentifyForm(&rgbFrame,ListOfForm,grip_pattern);								
 		
+			//Secutrity function, the pod-pot cannot drive to anything (except the cup ;-) ) closer than about 8cm
+		HindernisAusweichen(sensorFront, NbForm, sensorLeft, sensorRight);
+		
 		if( NbForm == 0 )
 		{
 			//looking after the 
-			MoveAndStop(MOVE_LEFT,30000);
-			MoveAndStop(MOVE_RUN,100000);
+			MoveAndStop(MOVE_LEFT,300000);
+			MoveAndStop(MOVE_RUN, 400000);
 		}
 		else 
 		{ 
 			exitLoop = GoToCup(ListOfForm, NbForm); 
 		}
         
-        PrintTextOnPobTerminal("Front Sensor %d, %d, %d", sensorFront, sensorLeft, sensorRight);
-	    PrintTextOnPobTerminal("IdentifyForm value %d ", NbForm );
+        //PrintTextOnPobTerminal("Front Sensor %d, %d, %d", sensorFront, sensorLeft, sensorRight);
+	    //PrintTextOnPobTerminal("IdentifyForm value %d ", NbForm );
 		
 	}
 	
@@ -146,7 +146,6 @@ int GoToCup( Form *formArray, int nbForm)
 	{
 		if( formArray[i].id == IDP_BECHER )
 		{
-			
             PrintTextOnPobTerminal("form at w=%d h=%d", formArray[i].x ,formArray[i].y );
 			//move bot to center the form
 			if( formArray[i].x > 55 )
@@ -160,13 +159,15 @@ int GoToCup( Form *formArray, int nbForm)
 			else //go to cup with the bot
 			{
 				//becher sollte in der mitte des Bildes sein
-				
+				MoveAndStop(MOVE_RUN,200000);
 				//fragt den Frontsensor ab
-				//sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
+				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
 				if (sensorFront > 65) { // 65 successful value
 					//stop move and open gri
+					MoveAndStop(MOVE_RUN,800000);
 					GripClose();
 					Wait(200000);
+					GripUp();
 					return -1 ;
 				}
 				else
@@ -222,7 +223,6 @@ void MoveAndStop( UInt8 Way, UInt32 time )
 	MoveBot(Way);
 	Wait(time);
 	MoveBot(STOP_BOT);
-	Wait(10000);
 }
 
 /**
@@ -256,24 +256,24 @@ void DrawVisionRight(RGBFrame *ptr)
 }
 
 
-void HindernisAusweichen(int front, int left, int right)
+void HindernisAusweichen(int front, int formCup, int left, int right)
 {
-    if (front > 85)
+    if (front > 90 && formCup != 1 )
     {
         MoveAndStop(MOVE_BACK,30000);
-        MoveAndStop(MOVE_LEFT,1000000);
+        MoveAndStop(MOVE_LEFT,100000);
+        PrintTextOnPobTerminal("front Hinderniss %d ", front );
     }
 	
-    if (left > 70)
+    if (left > 80 && left < 100)
     {
-        MoveAndStop(MOVE_RIGHT,30000);
-        MoveAndStop(MOVE_RUN,1000000);
+        MoveAndStop(MOVE_RIGHT,40000);
+                PrintTextOnPobTerminal("Left Hinderniss %d ", left );
     }
 	
-    if (right > 70)
+    if (right > 80 && right < 100)
     {
-        MoveAndStop(MOVE_LEFT,30000);
-        MoveAndStop(MOVE_RUN,1000000);
+        MoveAndStop(MOVE_LEFT,40000);
+                PrintTextOnPobTerminal("Right Hinderniss %d ", right );
     }
-	
 }
