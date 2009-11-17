@@ -44,18 +44,19 @@ static void HindernisAusweichen(int front, int formCup, int left, int right);
 int sensorFront ;
 int sensorLeft ;
 int sensorRight ;
+int IS_CUP_GRIPED; 
 
 //main program
 int main(void)
 {
     
-	int i ;
 	RGBFrame rgbFrame ;
 	HSLFrame hslFrame ;
 	
 	int exitLoop = 0 ;
 	UInt8 NbForm ;
-	Form ListOfForm[MAX_OF_FORM];
+	Form ListOfForm[MAX_OF_FORM] ;
+	IS_CUP_GRIPED = 0;
 	
 	
 	InitPOBEYE();
@@ -111,8 +112,9 @@ int main(void)
 		if( NbForm == 0 )
 		{
 			//looking after the 
-			MoveAndStop(MOVE_LEFT,300000);
-			MoveAndStop(MOVE_RUN, 400000);
+		//	MoveAndStop(MOVE_LEFT,200000);
+			MoveAndStop(MOVE_RUN, 800000);
+			
 		}
 		else 
 		{ 
@@ -139,14 +141,15 @@ int main(void)
 int GoToCup( Form *formArray, int nbForm)
 {
 	int i ;
-	int MoveOrder = STOP_BOT ;
-	int HeadPosition = 110 ;
+	int MoveOrder = STOP_BOT;
+	int HeadPosition = 136;
 	
 	for(i=0 ; i<nbForm ; i++ )
 	{
-		if( formArray[i].id == IDP_BECHER )
+            PrintTextOnPobTerminal("form id %d ", formArray[i].id );
+		if( formArray[i].id == IDP_BECHER1 )
 		{
-            PrintTextOnPobTerminal("form at w=%d h=%d", formArray[i].x ,formArray[i].y );
+            //PrintTextOnPobTerminal("form at w=%d h=%d", formArray[i].x ,formArray[i].y );
 			//move bot to center the form
 			if( formArray[i].x > 55 )
 			{
@@ -162,27 +165,62 @@ int GoToCup( Form *formArray, int nbForm)
 				MoveAndStop(MOVE_RUN,200000);
 				//fragt den Frontsensor ab
 				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
-				if (sensorFront > 65) { // 65 successful value
+				if (sensorFront > 65) { // 65 successful value for the cup
 					//stop move and open gri
-					MoveAndStop(MOVE_RUN,800000);
+					MoveAndStop(MOVE_RUN,900000);
 					GripClose();
 					Wait(200000);
 					GripUp();
-					return -1 ;
+					IS_CUP_GRIPED = 1;
+					SetServoMotor(HEAD_SERVO,HeadPosition);
+					
 				}
 				else
 				{
-					//go fast to the house
+					//go fast to the cup
 					MoveOrder=MOVE_RUN;
 				}
 				
 			}
 			
+		} else if( formArray[i].id == IDP_0_CROSS && IS_CUP_GRIPED == 1) {
+			
+			if( formArray[i].x > 55 )
+			{
+				MoveAndStop(MOVE_RIGHT,40000);
+			}
+			else if( formArray[i].x < 35 )
+			{
+				MoveAndStop(MOVE_LEFT,40000);
+			}
+			else //go to cup with the bot
+			{
+				//becher sollte in der mitte des Bildes sein
+				MoveAndStop(MOVE_RUN,200000);
+				//fragt den Frontsensor ab
+				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
+				if (sensorFront > 65) { // 65 successful value
+					
+					MoveAndStop(MOVE_RUN,900000);
+					GripDown();
+					Wait(200000);
+					GripOpen();
+					IS_CUP_GRIPED = 0;
+					Wait(200000);
+					MoveAndStop(MOVE_BACK,100000);
+				}
+				else
+				{
+					//go fast to the cross
+					MoveOrder=MOVE_RUN;
+				}
+				
+			}
+		
 		}
 	}
 	
 	MoveBot(MoveOrder);
-	
 	return 0 ;
 }
 
@@ -258,20 +296,23 @@ void DrawVisionRight(RGBFrame *ptr)
 
 void HindernisAusweichen(int front, int formCup, int left, int right)
 {
-    if (front > 90 && formCup != 1 )
+     PrintTextOnPobTerminal("front %d ", front );
+    while (front > 90 && formCup != 1 && formCup !=2 )
     {
-        MoveAndStop(MOVE_BACK,30000);
-        MoveAndStop(MOVE_LEFT,100000);
+        MoveAndStop(MOVE_BACK,900000);
+		Wait(20000);
+        MoveAndStop(MOVE_LEFT,80000);
+		Wait(20000);
         PrintTextOnPobTerminal("front Hinderniss %d ", front );
     }
 	
-    if (left > 80 && left < 100)
+    while (left > 70 && left < 110)
     {
         MoveAndStop(MOVE_RIGHT,40000);
                 PrintTextOnPobTerminal("Left Hinderniss %d ", left );
     }
 	
-    if (right > 80 && right < 100)
+    while (right > 70 && right < 110)
     {
         MoveAndStop(MOVE_LEFT,40000);
                 PrintTextOnPobTerminal("Right Hinderniss %d ", right );
