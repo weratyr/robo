@@ -49,7 +49,6 @@ int IS_CUP_GRIPED;
 //main program
 int main(void)
 {
-    
 	RGBFrame rgbFrame ;
 	HSLFrame hslFrame ;
 	
@@ -57,7 +56,6 @@ int main(void)
 	UInt8 NbForm ;
 	Form ListOfForm[MAX_OF_FORM] ;
 	IS_CUP_GRIPED = 0;
-	
 	
 	InitPOBEYE();
 	InitLCD();
@@ -89,8 +87,6 @@ int main(void)
 	ClearGraphicBuffer(&LCD_Buffer_Video);
 	//house loop
 	
-	
-	
     while( exitLoop == 0 )
 	{
 		GrabRGBFrame();
@@ -105,25 +101,23 @@ int main(void)
 		DrawVision(&rgbFrame);
 		
 		NbForm = IdentifyForm(&rgbFrame,ListOfForm,grip_pattern);								
+		//Secutrity function, the pod-pot cannot drive to anything (except the cup ;-) ) closer than about 8cm
 		
-			//Secutrity function, the pod-pot cannot drive to anything (except the cup ;-) ) closer than about 8cm
-		HindernisAusweichen(sensorFront, NbForm, sensorLeft, sensorRight);
 		
 		if( NbForm == 0 )
 		{
 			//looking after the 
 		//	MoveAndStop(MOVE_LEFT,200000);
-			MoveAndStop(MOVE_RUN, 800000);
-			
+			//MoveAndStop(MOVE_RUN, 1000000);
+			HindernisAusweichen(sensorFront, NbForm, sensorLeft, sensorRight);
+			MoveBot(MOVE_RUN);
 		}
 		else 
 		{ 
-			exitLoop = GoToCup(ListOfForm, NbForm); 
+			exitLoop = GoToX(ListOfForm, NbForm); 
 		}
-        
         //PrintTextOnPobTerminal("Front Sensor %d, %d, %d", sensorFront, sensorLeft, sensorRight);
 	    //PrintTextOnPobTerminal("IdentifyForm value %d ", NbForm );
-		
 	}
 	
 	return 0;
@@ -138,11 +132,11 @@ int main(void)
  * @return -1 if bot is just front of the cup, 0 else.
  *
  */
-int GoToCup( Form *formArray, int nbForm)
+int GoToX( Form *formArray, int nbForm)
 {
 	int i ;
 	int MoveOrder = STOP_BOT;
-	int HeadPosition = 136;
+	int HeadPosition = 140;
 	
 	for(i=0 ; i<nbForm ; i++ )
 	{
@@ -201,13 +195,14 @@ int GoToCup( Form *formArray, int nbForm)
 				sensorFront = GetPortAnalog(DISTANCE_SENSOR_FRONT); 
 				if (sensorFront > 65) { // 65 successful value
 					
-					MoveAndStop(MOVE_RUN,900000);
+					MoveAndStop(MOVE_RUN,700000);
 					GripDown();
 					Wait(200000);
 					GripOpen();
 					IS_CUP_GRIPED = 0;
-					Wait(200000);
-					MoveAndStop(MOVE_BACK,100000);
+					MoveAndStop(MOVE_BACK,800000);
+					HeadInit();
+					HeadDownToBall();
 				}
 				else
 				{
@@ -298,28 +293,24 @@ void HindernisAusweichen(int front, int formCup, int left, int right)
 {
      PrintTextOnPobTerminal("front %d ", front );
 
-	
-	
-	
-    while (front > 90 && formCup != 1 && formCup !=2 )
+    while (front > 50 && front < 90)
     {
         MoveAndStop(MOVE_BACK,80000);
-		Wait(20000);
-        MoveAndStop(MOVE_LEFT,
+        MoveAndStop(MOVE_LEFT, 800000);
         PrintTextOnPobTerminal("front Hinderniss %d ", front );
 		front = GetPortAnalog(DISTANCE_SENSOR_FRONT);
     }
 	
-    while (left > 70 && left < 110)
+    while (left > 80 && left < 110)
     {
-        MoveAndStop(MOVE_RIGHT,40000);
+        MoveAndStop(MOVE_RIGHT,80000);
 		PrintTextOnPobTerminal("Left Hinderniss %d ", left );
 		left = GetPortAnalog(DISTANCE_SENSOR_LEFT);
     }
 	
-    while (right > 70 && right < 110)
+    while (right > 80 && right < 110)
     {
-        MoveAndStop(MOVE_LEFT,40000);
+        MoveAndStop(MOVE_LEFT,80000);
 		PrintTextOnPobTerminal("Right Hinderniss %d ", right );
 		right = GetPortAnalog(DISTANCE_SENSOR_RIGHT);
     }
