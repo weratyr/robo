@@ -12,7 +12,7 @@
 static void InitPobProto (void);
 static void MoveAndStop(UInt8 Way,UInt32 time);
 static void MoveBot(UInt8 Way);
-
+static int IS_CUP_GRIPED
 //move order for pob-proto board
 #define DISTANCE_SENSOR_FRONT 5
 #define DISTANCE_SENSOR_RIGHT 2
@@ -350,4 +350,20 @@ void HindernisAusweichen(int front, int formCup, int left, int right)
 		}
 		right = GetPortAnalog(DISTANCE_SENSOR_RIGHT);
     }
+}
+int IS_CUP_GRIPED()
+{	//Drehe dich aus möglichem Schatten
+	//nimm den Kopf runter und frage abstandssensor ab, ob Becher gegriffen wurde
+	int HeadPosition=115;
+	int ValueGripped=0;
+	MoveAndStop(MOVE_LEFT, 400000);
+	
+	SetServoMotor(HEAD_SERVO,HeadPosition);
+	ValueGripped=GetPortAnalog(DISTANCE_SENSOR_FRONT)
+	if (ValueGripped>x)
+	  {
+		retun 1;
+		  
+	  }
+	return 0;
 }
