@@ -205,7 +205,7 @@ int main(void)
 				if (sensorFront > 65) // 65 successful value
 				{ 
 
-					MoveAndStop(MOVE_RUN,600000);
+					MoveAndStop(MOVE_RUN,300000);
 					GripDown();
 					Wait(200000);
 					GripOpen();
