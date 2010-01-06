@@ -1,18 +1,10 @@
 #include <pob-eye.h>
 #include <pob-proto.h>
 
-
 #include "grip_pattern.h" //Pattern file
 #include "grip_bitmap.h"  //Bitmap file
-
 #include "grip.h" //Servomotor grip order
 
-
-//function for pob-proto and move bot
-static void InitPobProto (void);
-static void MoveAndStop(UInt8 Way,UInt32 time);
-static void MoveBot(UInt8 Way);
-static int IS_CUP_GRIPED
 //move order for pob-proto board
 #define DISTANCE_SENSOR_FRONT 5
 #define DISTANCE_SENSOR_RIGHT 2
@@ -28,23 +20,27 @@ static int IS_CUP_GRIPED
 #define MOVE_RIGHT		0x06
 #define STOP_BOT		0
 
+//function for pob-proto and move bot
+static void InitPobProto (void);
+static void MoveAndStop(UInt8 Way,UInt32 time);
+static void MoveBot(UInt8 Way);
+
+//function for displat real time video
+static void DrawVision(RGBFrame *ptr);
+static void DrawVisionRight(RGBFrame *ptr);
+static int GoToX(Form *formArray, int nbForm);
+static void RandomDrive();
+static void HindernisAusweichen(int front, int formCup, int left, int right);
+static int is_cup_griped();
 
 //array for display real time video
 static UInt8         LCD_Fast_Buffer[64*64*BYTES];
 static GraphicBuffer LCD_Fast_Buffer_Video;
-
 static GraphicBuffer LCD_Fast_Buffer_Video1;
 
 //array for display the graphic interface
 static GraphicBuffer LCD_Buffer_Video;
 static UInt8         LCD_Buffer[64*64*BITS];
-
-//function for displat real time video
-static void DrawVision(RGBFrame *ptr);
-static void DrawVisionRight(RGBFrame *ptr);
-static void RandomDrive();
-static void HindernisAusweichen(int front, int formCup, int left, int right);
-
 
 int sensorFront ;
 int sensorLeft ;
@@ -142,11 +138,11 @@ int main(void)
  * @return -1 if bot is just front of the cup, 0 else.
  *
  */
-int GoToX( Form *formArray, int nbForm)
+
+ int GoToX( Form *formArray, int nbForm)
 {
 	int i ;
 	int MoveOrder = STOP_BOT;
-	int HeadPosition = 140;
 
 
 	for(i=0 ; i<nbForm ; i++ )
@@ -177,8 +173,7 @@ int GoToX( Form *formArray, int nbForm)
 					GripClose();
 					Wait(200000);
 					GripUp();
-					IS_CUP_GRIPED = 1;
-					SetServoMotor(HEAD_SERVO,HeadPosition);
+					IS_CUP_GRIPED = is_cup_griped();
 				}
 				else
 				{
@@ -210,7 +205,7 @@ int GoToX( Form *formArray, int nbForm)
 				if (sensorFront > 65) // 65 successful value
 				{ 
 
-					MoveAndStop(MOVE_RUN,700000);
+					MoveAndStop(MOVE_RUN,600000);
 					GripDown();
 					Wait(200000);
 					GripOpen();
@@ -218,7 +213,7 @@ int GoToX( Form *formArray, int nbForm)
 					MoveAndStop(MOVE_BACK,800000);
 					// hier von dem Kreuz wegdrehen und wieder Grip hoch
 					MoveAndStop(MOVE_LEFT,1000000);
-					HeadInit();
+					//HeadInit();
 					GripDrive();
 					HeadDownToBall();
 				}
@@ -313,7 +308,6 @@ void RandomDrive()
 	}
 	MoveBot(MOVE_RUN);
 	countNotForm++;
-	//PrintTextOnPobTerminal("conter %d", countNotForm); 
 }
 
 void HindernisAusweichen(int front, int formCup, int left, int right)
@@ -351,19 +345,24 @@ void HindernisAusweichen(int front, int formCup, int left, int right)
 		right = GetPortAnalog(DISTANCE_SENSOR_RIGHT);
     }
 }
-int IS_CUP_GRIPED()
+int is_cup_griped()
 {	//Drehe dich aus möglichem Schatten
 	//nimm den Kopf runter und frage abstandssensor ab, ob Becher gegriffen wurde
-	int HeadPosition=115;
-	int ValueGripped=0;
+	int headPosition=115;
+	int valueGripped=0;
+	
 	MoveAndStop(MOVE_LEFT, 400000);
 	
-	SetServoMotor(HEAD_SERVO,HeadPosition);
-	ValueGripped=GetPortAnalog(DISTANCE_SENSOR_FRONT)
-	if (ValueGripped>x)
+	SetServoMotor(HEAD_SERVO,headPosition);
+	valueGripped=GetPortAnalog(DISTANCE_SENSOR_FRONT);
+	PrintTextOnPobTerminal("Fontsensor is_cup_griped() %d", valueGripped); 
+	if (valueGripped>50)
 	  {
-		retun 1;
-		  
+		HeadUpToCross();
+		return 1; 
 	  }
+	GripOpen();
+	GripDrive();
+	HeadDownToBall();
 	return 0;
 }

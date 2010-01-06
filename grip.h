@@ -66,5 +66,6 @@
 #define HeadInit()       SetServoMotor(HEAD_SERVO,HEAD_INIT_POSITION)
 #define HeadUp()         SetServoMotor(HEAD_SERVO,HEAD_INIT_POSITION)
 #define HeadDownToBall() SetServoMotor(HEAD_SERVO,HEAD_INIT_POSITION-68)
+#define HeadUpToCross()  SetServoMotor(HEAD_SERVO,140)
 
 #endif
